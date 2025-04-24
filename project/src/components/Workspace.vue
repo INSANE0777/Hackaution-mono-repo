@@ -56,7 +56,8 @@ const submitNews = async () => {
 
     // Step 3: Calling fact checking agent
     processingSteps.value[2].current = true
-    const result = await response.json()
+    const data = await response.json()
+    const result = data.success ? data.result : null
     processingSteps.value[2].completed = true
     processingSteps.value[2].current = false
 
@@ -64,19 +65,48 @@ const submitNews = async () => {
     processingSteps.value[3].current = true
     
     // Parse and format the API response
-    report.value = {
-      verdict: result.verdict || 'Not Proven',
-      confidence: result.confidence || 'Low',
-      analysis: {
-        verified: result.analysis?.verified || [],
-        unverified: result.analysis?.unverified || [],
-        contradictions: result.analysis?.contradictions || []
-      },
-      sources: result.sources?.map(source => ({
-        tier: source.tier || 'Tier 3',
-        name: source.name || 'Unknown Source',
-        note: source.note || ''
-      })) || []
+    if (result) {
+      // Extract verdict and confidence from the report text
+      const reportText = result.report || ''
+      const verdictMatch = reportText.match(/\*\*Verdict:\*\*\s*([^\n]+)/)
+      const confidenceMatch = reportText.match(/\*\*Confidence Level:\*\*\s*([^\n]+)/)
+      
+      // Parse analysis sections
+      const verifiedMatch = reportText.match(/\*\*Verified Elements:\*\*\s*([\s\S]*?)(?=\s*\*\*Unverified Elements:|$)/)
+      const unverifiedMatch = reportText.match(/\*\*Unverified Elements:\*\*\s*([\s\S]*?)(?=\s*\*\*Contradictions:|$)/)
+      const contradictionsMatch = reportText.match(/\*\*Contradictions:\*\*\s*([\s\S]*?)(?=\s*\*\*Relevant URLs:|$)/)
+      
+      // Extract list items from sections
+      const extractListItems = (text) => {
+        if (!text) return []
+        return text.split('\n')
+          .filter(line => line.trim().startsWith('-'))
+          .map(line => line.trim().replace(/^-\s*/, ''))
+      }
+      
+      report.value = {
+        verdict: verdictMatch ? verdictMatch[1].trim() : 'Not Proven',
+        confidence: confidenceMatch ? confidenceMatch[1].trim() : 'Low',
+        summary: result.summary || '',
+        analysis: {
+          verified: verifiedMatch ? extractListItems(verifiedMatch[1]) : [],
+          unverified: unverifiedMatch ? extractListItems(unverifiedMatch[1]) : [],
+          contradictions: contradictionsMatch ? extractListItems(contradictionsMatch[1]) : []
+        },
+        sources: result.sources || []
+      }
+    } else {
+      report.value = {
+        verdict: 'Error',
+        confidence: 'Low',
+        summary: 'Failed to process the fact check',
+        analysis: {
+          verified: [],
+          unverified: [],
+          contradictions: []
+        },
+        sources: []
+      }
     }
     
     processingSteps.value[3].completed = true
