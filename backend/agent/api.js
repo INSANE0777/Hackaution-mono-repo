@@ -44,11 +44,21 @@ const requestHandler = async (req, res) => {
       }
 
       try {
-        const result = await factCheckAgent.run(text);
+        const fullResult = await factCheckAgent.run(text);
+        
+        // Extract only the necessary data for the response
+        // Remove embeddings, chunks, and other processing data
+        const cleanResult = {
+          summary: fullResult.summary,
+          report: fullResult.report,
+          // Include only the URLs from relevant_metadata for reference
+          sources: fullResult.relevant_metadata || []
+        };
+        
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ 
           success: true,
-          result: result
+          result: cleanResult
         }));
       } catch (error) {
         res.writeHead(500, { "Content-Type": "application/json" });

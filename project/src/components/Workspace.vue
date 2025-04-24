@@ -37,13 +37,13 @@ const submitNews = async () => {
     processingSteps.value[1].current = true
     
     // Make API call to fact-check endpoint
-    const response = await fetch('/api/agent/fact-check', {
+    const response = await fetch('http://localhost:3001/api/agent/fact-check', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        news: newsInput.value
+        text: newsInput.value
       })
     })
 
@@ -176,29 +176,32 @@ onMounted(() => {
           
           <div class="analysis-section">
             <h4>Verified Elements:</h4>
-            <ul>
+            <ul v-if="report.analysis && report.analysis.verified && report.analysis.verified.length > 0">
               <li v-for="(item, index) in report.analysis.verified" :key="`verified-${index}`">
                 {{ item }}
               </li>
             </ul>
+            <p v-else>No verified elements found.</p>
           </div>
           
           <div class="analysis-section">
             <h4>Unverified Elements:</h4>
-            <ul>
+            <ul v-if="report.analysis && report.analysis.unverified && report.analysis.unverified.length > 0">
               <li v-for="(item, index) in report.analysis.unverified" :key="`unverified-${index}`">
                 {{ item }}
               </li>
             </ul>
+            <p v-else>No unverified elements found.</p>
           </div>
           
           <div class="analysis-section">
             <h4>Contradictions:</h4>
-            <ul>
+            <ul v-if="report.analysis && report.analysis.contradictions && report.analysis.contradictions.length > 0">
               <li v-for="(item, index) in report.analysis.contradictions" :key="`contradiction-${index}`">
                 {{ item }}
               </li>
             </ul>
+            <p v-else>No contradictions found.</p>
           </div>
         </div>
         
