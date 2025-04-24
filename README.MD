@@ -24,7 +24,7 @@ This project is organized as a monorepo containing both frontend and backend cod
 
 ### Frontend
 
-The frontend is built using React with TypeScript, providing a responsive and interactive user interface for content verification and monitoring.
+The frontend is built using Vue with TypeScript, providing a responsive and interactive user interface for content verification and monitoring.
 
 Key components:
 
@@ -35,7 +35,7 @@ Key components:
 
 ### Backend
 
-The backend is powered by Node.js with Express, providing RESTful APIs and WebSocket connections for real-time updates.
+The backend is powered by Node.js, providing RESTful APIs and WebSocket connections for real-time updates.
 
 Key components:
 
