@@ -2,7 +2,7 @@
 
 A comprehensive fake news detection platform with AI-powered analysis and real-time verification.
 
-![Project Structure](s.svg)
+![Project Structure](./project-structure-diagram.svg)
 
 ## 📋 Project Overview
 
